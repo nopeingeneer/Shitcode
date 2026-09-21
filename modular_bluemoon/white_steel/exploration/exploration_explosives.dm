@@ -10,8 +10,8 @@
 	w_class = WEIGHT_CLASS_SMALL
 	var/atom/target = null
 	var/mutable_appearance/plastic_overlay
-	var/light_exp_range = 3
-	var/heavy_range = 0
+	var/light_exp_range = 5
+	var/heavy_range = 2
 	var/devastation_range = 0
 	var/list/attached_detonators = list()
 
@@ -91,8 +91,8 @@
 	else if(!QDELETED(src))
 		location = get_turf(src)
 	if(location)
-		log_game("[key_name(primed_by)] detonated [name] at [AREACOORD(location)].")
-		explosion(location, devastation_range, heavy_range, light_exp_range)
+		log_game("[key_name(lanced_by)] detonated [name] at [AREACOORD(location)].")
+		explosion(location, devastation_range, heavy_range, light_exp_range, attacker = lanced_by)
 	if(isliving(target) && !QDELETED(target))
 		var/mob/living/M = target
 		M.gib()
@@ -126,7 +126,7 @@
 		if(QDELETED(exploration) || QDELETED(exploration.target))
 			continue
 		if(get_dist(exploration.target, user) <= range)
-			addtimer(CALLBACK(exploration, /obj/item/grenade/exploration.proc/prime), 10)
+			addtimer(CALLBACK(exploration, /obj/item/grenade/exploration.proc/prime, user), 10)
 			explosives_trigged ++
 	to_chat(user, span_notice("[explosives_trigged] зарядов было активировано."))
 
