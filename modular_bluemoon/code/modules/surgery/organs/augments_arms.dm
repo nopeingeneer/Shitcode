@@ -514,7 +514,7 @@
 	righthand_file = 'icons/mob/inhands/weapons/melee_righthand.dmi'
 	icon_state = "implant_mono_wire_sec"
 	item_state = "mono_wire"
-	force = 8
+	force = 13
 	armour_penetration = MELEE_AP_COMBAT
 	flags_1 = CONDUCT_1
 	w_class = WEIGHT_CLASS_BULKY
