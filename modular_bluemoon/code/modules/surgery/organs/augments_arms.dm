@@ -532,8 +532,8 @@
 	var/garrote_oxy_damage = 12
 
 /obj/item/melee/implantmonostring/attack(mob/living/M, mob/living/user, attackchain_flags = NONE, damage_multiplier = 1)
-	// Удушение — только на интенте захвата; в остальных интентах струна просто режет.
-	if(iscarbon(M) && istype(user) && M != user && user.a_intent == INTENT_GRAB && !user.pulling && (M.lying || M.dir == user.dir))
+	// Удушение — только на интенте захвата и только в упор; на дистанции (reach) струна просто режет.
+	if(iscarbon(M) && istype(user) && M != user && user.a_intent == INTENT_GRAB && !user.pulling && user.Adjacent(M) && (M.lying || M.dir == user.dir))
 		var/mob/living/carbon/C = M
 		var/victimdir = C.dir
 		C.grabbedby(user, 1)

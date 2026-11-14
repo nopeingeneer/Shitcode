@@ -391,7 +391,7 @@
 
 /datum/design/cyberimp_gorilla_arms/hack
 	name = "Gorilla Arms Implant"
-	id = "ci-gorilla-hack"
+	id = "ci-gorilla-arms-hack"
 	build_path = /obj/item/organ/cyberimp/arm/gorilla
 	hacked_only = TRUE
 

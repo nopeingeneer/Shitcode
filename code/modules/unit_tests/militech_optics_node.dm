@@ -1,4 +1,4 @@
-/// Militech optical suite — боевой имплант: живёт в боевой ноде и не печатается на медицинском протолате.
+/// Militech optical suite — боевой имплант: живёт в боевой ноде и печатается только со взломанного протолата.
 /datum/unit_test/militech_optics_node
 
 /datum/unit_test/militech_optics_node/Run()
@@ -13,5 +13,4 @@
 
 	var/datum/design/militech = SSresearch.techweb_designs["ci-militech-optics"]
 	TEST_ASSERT_NOTNULL(militech, "Дизайн ci-militech-optics должен существовать")
-	TEST_ASSERT(!(militech.departmental_flags & DEPARTMENTAL_FLAG_MEDICAL), "Militech optics не должен печататься на медицинском протолате")
-	TEST_ASSERT(militech.departmental_flags & DEPARTMENTAL_FLAG_SECURITY, "Militech optics должен печататься на охранном протолате")
+	TEST_ASSERT(militech.hacked_only, "Militech optics должен печататься только со взломанного протолата")

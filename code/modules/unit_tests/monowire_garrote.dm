@@ -13,6 +13,13 @@
 	wire.attack(victim, user)
 	TEST_ASSERT_NULL(user.pulling, "В боевом интенте моноструна не должна хватать цель")
 
+	// Гаррота работает только в упор: с двух тайлов струна достаёт (reach), но не хватает.
+	victim.forceMove(get_step(get_step(start, EAST), EAST))
+	user.a_intent = INTENT_GRAB
+	wire.attack(victim, user)
+	TEST_ASSERT_NULL(user.pulling, "Моноструна не должна хватать цель с дистанции")
+	victim.forceMove(get_step(start, EAST))
+
 	// На интенте захвата струна обвивает шею и ставит удушающий захват.
 	user.a_intent = INTENT_GRAB
 	wire.attack(victim, user)
