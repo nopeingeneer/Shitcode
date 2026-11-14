@@ -38,9 +38,15 @@
 	TEST_ASSERT_NULL(wire.strangling, "После разрыва захвата удушение прекращается")
 	TEST_ASSERT_NULL(wire.strangler, "После разрыва захвата удушающий сбрасывается")
 
-/// Все варианты моноструны бьют раз в 3 секунды.
+/// Все варианты моноструны бьют раз в 3 секунды, урон базовой и агентской струны снижен.
 /datum/unit_test/monowire_attack_speed/Run()
 	var/expected = 3 SECONDS
-	for(var/wire_type in list(/obj/item/melee/implantmonostring, /obj/item/melee/implantmonostring/corpo, /obj/item/melee/implantmonostring/syndie))
+	var/expected_damage = list(
+		/obj/item/melee/implantmonostring = 8,
+		/obj/item/melee/implantmonostring/corpo = 8,
+		/obj/item/melee/implantmonostring/syndie = 15,
+	)
+	for(var/wire_type in expected_damage)
 		var/obj/item/melee/implantmonostring/wire = allocate(wire_type)
 		TEST_ASSERT_EQUAL(wire.attack_speed, expected, "[wire_type] должен иметь задержку атаки 3 секунды")
+		TEST_ASSERT_EQUAL(wire.force, expected_damage[wire_type], "[wire_type] должен иметь урон [expected_damage[wire_type]]")

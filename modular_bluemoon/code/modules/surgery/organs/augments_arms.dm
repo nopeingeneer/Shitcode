@@ -514,7 +514,7 @@
 	righthand_file = 'icons/mob/inhands/weapons/melee_righthand.dmi'
 	icon_state = "implant_mono_wire_sec"
 	item_state = "mono_wire"
-	force = 13
+	force = 8
 	armour_penetration = MELEE_AP_COMBAT
 	flags_1 = CONDUCT_1
 	w_class = WEIGHT_CLASS_BULKY
@@ -606,7 +606,7 @@
 /obj/item/melee/implantmonostring/syndie
 	name = "Agent Monowire"
 	icon_state = "implant_mono_wire"
-	force = 20
+	force = 15
 	armour_penetration = MELEE_AP_ANTAGONIST
 	reach = 3 // +2 тайла
 	/// Шанс разряда тока по цели при ударе.
