@@ -522,8 +522,8 @@
 	total_mass = TOTAL_MASS_HAND_REPLACEMENT
 	reach = 2 // +1 тайл, как у копья
 	attack_verb = list("sliced", "severed")
-	/// Струна бьёт вдвое медленнее обычного оружия.
-	attack_speed = CLICK_CD_MELEE * 2
+	/// Между ударами струны проходит 3 секунды.
+	attack_speed = 3 SECONDS
 	item_flags = NEEDS_PERMIT
 	hitsound = 'sound/weapons/bladeslice.ogg'
 	/// Жертва, которую сейчас душат этой струной.
@@ -536,6 +536,9 @@
 /obj/item/melee/implantmonostring/attack(mob/living/M, mob/living/user, attackchain_flags = NONE, damage_multiplier = 1)
 	// Удушение — только на интенте захвата и только в упор; на дистанции (reach) струна просто режет.
 	if(iscarbon(M) && istype(user) && M != user && user.a_intent == INTENT_GRAB && !user.pulling && user.Adjacent(M) && (M.lying || M.dir == user.dir))
+		// Щит/парирование не даёт накинуть струну на шею: гаррота — это тоже захват.
+		if(try_block(M, user))
+			return TRUE
 		var/mob/living/carbon/C = M
 		var/victimdir = C.dir
 		C.grabbedby(user, 1)
@@ -553,6 +556,17 @@
 		start_garrote(C, user)
 		return TRUE
 	return ..()
+
+/// Проверяет, блокирует ли цель удар струны. real_attack = FALSE только спрашивает шанс
+/// и не тратит заряды щита — нужно для разряда агентской струны.
+/obj/item/melee/implantmonostring/proc/try_block(mob/living/victim, mob/living/user, real_attack = TRUE)
+	if(!istype(victim))
+		return FALSE
+	var/list/block_return = list()
+	if(real_attack)
+		return !!(victim.mob_run_block(src, force, "the [name]", ATTACK_TYPE_MELEE, armour_penetration, user, user?.zone_selected, block_return) & BLOCK_SUCCESS)
+	victim.mob_check_block(src, force, "the [name]", ATTACK_TYPE_MELEE, armour_penetration, user, user?.zone_selected, block_return)
+	return block_return[BLOCK_RETURN_NORMAL_BLOCK_CHANCE] >= 100
 
 /// Начинает удушение: пока захват держится, струна наносит окси-урон через process().
 /obj/item/melee/implantmonostring/proc/start_garrote(mob/living/carbon/victim, mob/living/carbon/user)
@@ -599,8 +613,10 @@
 	var/shock_chance = 100
 
 /obj/item/melee/implantmonostring/syndie/attack(mob/living/M, mob/living/user, attackchain_flags = NONE, damage_multiplier = 1)
+	// Разряд не должен проходить сквозь щит, даже если сам удар поглощён.
+	var/blocked = try_block(M, user, FALSE)
 	. = ..()
-	if(QDELETED(M) || !isliving(M) || !prob(shock_chance))
+	if(blocked || QDELETED(M) || !isliving(M) || !prob(shock_chance))
 		return
 	M.Paralyze(1 SECONDS) // станящий шок: секунда без действий
 	M.Jitter(20)

@@ -444,6 +444,7 @@
 #include "mod_suit_fixes.dm"
 #include "modular_map_loader.dm" //SPLURT EDIT
 #include "monowire_garrote.dm"
+#include "monowire_shield.dm"
 #include "nightshift.dm"
 #include "northstar.dm"
 #include "ntnet_responses.dm"
