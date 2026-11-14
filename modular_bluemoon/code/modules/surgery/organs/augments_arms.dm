@@ -522,6 +522,8 @@
 	total_mass = TOTAL_MASS_HAND_REPLACEMENT
 	reach = 2 // +1 тайл, как у копья
 	attack_verb = list("sliced", "severed")
+	/// Струна бьёт вдвое медленнее обычного оружия.
+	attack_speed = CLICK_CD_MELEE * 2
 	item_flags = NEEDS_PERMIT
 	hitsound = 'sound/weapons/bladeslice.ogg'
 	/// Жертва, которую сейчас душат этой струной.
