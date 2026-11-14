@@ -233,13 +233,7 @@
 
 /obj/item/organ/cyberimp/arm/proc/Extend(obj/item/item)
 	if(!(item in src))
-		return
-
-	holder = item
-
-	holder.resistance_flags = INDESTRUCTIBLE | LAVA_PROOF | FIRE_PROOF | UNACIDABLE | ACID_PROOF
-	holder.slot_flags = null
-	holder.set_custom_materials(null)
+		return FALSE
 
 	// A dual-arm augment deploys into whichever hand was activated (the active hand),
 	// falling back to the other hand. A single-arm augment always uses its own arm.
@@ -251,46 +245,62 @@
 	else
 		arm_index = owner.get_empty_held_index_for_side(zone) || owner.get_empty_held_index_for_side("left")
 
+	if(!arm_index)
+		to_chat(owner, span_warning("Your [name] fails to activate!"))
+		return FALSE
+
 	var/obj/item/arm_item = owner.get_item_for_held_index(arm_index)
 
 	if(arm_item)
 		if(!owner.dropItemToGround(arm_item))
 			to_chat(owner, span_warning("Your [arm_item] interferes with [src]!"))
-			return
+			return FALSE
 		else
 			to_chat(owner, span_notice("You drop [arm_item] to activate [src]!"))
 
-	var/result = owner.put_in_hand(holder, arm_index)
+	item.resistance_flags = INDESTRUCTIBLE | LAVA_PROOF | FIRE_PROOF | UNACIDABLE | ACID_PROOF
+	item.slot_flags = null
+	item.set_custom_materials(null)
+
+	var/result = owner.put_in_hand(item, arm_index)
 	if(!result)
 		to_chat(owner, span_warning("Your [name] fails to activate!"))
-		return
+		return FALSE
+	holder = item
 
 	// Activate the hand that now holds our item.
 	owner.swap_hand(result)//... or the 1st hand if the index gets lost somehow
 
 	// Dual-arm augments deploy one copy in each hand at the same time.
-	if(is_dual_arm_implant())
-		deploy_offhand(item)
+	if(is_dual_arm_implant() && !deploy_offhand(item))
+		to_chat(owner, span_warning("Your [name] fails to deploy its second copy!"))
+		Retract(TRUE)
+		return FALSE
 
 	ExtendPlaySound(item)
 	return TRUE
 
+/// Раскрывает вторую копию двурукого импланта во вторую руку.
+/// Предмет из второй руки выпадает: имплант занимает обе руки и не должен раскрываться наполовину.
 /obj/item/organ/cyberimp/arm/proc/deploy_offhand(obj/item/item)
-	if(holder_offhand || !owner)
-		return
+	if(holder_offhand)
+		return TRUE
+	if(!owner)
+		return FALSE
 	var/primary_index = owner.get_held_index_of_item(holder)
 	var/other_index
 	for(var/i in 1 to owner.held_items.len)
 		if(i == primary_index)
 			continue
-		if(!owner.get_item_for_held_index(i))
-			other_index = i
-			break
+		other_index = i
+		break
 	if(!other_index)
-		return
+		return FALSE
 	var/obj/item/other_item = owner.get_item_for_held_index(other_index)
-	if(other_item && !owner.dropItemToGround(other_item))
-		return
+	if(other_item)
+		if(!owner.dropItemToGround(other_item))
+			return FALSE
+		to_chat(owner, span_notice("You drop [other_item] to activate [src]!"))
 	var/obj/item/offhand = new item.type(src)
 	offhand.resistance_flags = INDESTRUCTIBLE | LAVA_PROOF | FIRE_PROOF | UNACIDABLE | ACID_PROOF
 	offhand.slot_flags = null
@@ -299,9 +309,10 @@
 	ADD_TRAIT(offhand, TRAIT_NODROP, IMPLANT_NODROP)
 	if(!owner.put_in_hand(offhand, other_index))
 		qdel(offhand)
-		return
+		return FALSE
 	holder_offhand = offhand
 	RegisterSignal(offhand, COMSIG_ITEM_DROPPED, PROC_REF(on_offhand_dropped))
+	return TRUE
 
 /obj/item/organ/cyberimp/arm/proc/on_offhand_dropped(datum/source, mob/user)
 	SIGNAL_HANDLER
